@@ -2,6 +2,7 @@ package com.v2ray.ang.ui.main
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +28,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -104,17 +107,54 @@ fun MainBottomBar(
             else if (isDarkTheme) colorFabInactiveDark
             else colorFabInactiveLight
         ) {
-            Icon(
-                painter = if (isRunning) painterResource(R.drawable.ic_stop_24dp)
-                else painterResource(R.drawable.ic_play_24dp),
-                contentDescription = stringResource(
-                    if (isRunning) R.string.acc_stop else R.string.acc_start
-                ),
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .graphicsLayer { rotationZ = rotationAnim.value }
-            )
+            if (isRunning) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_stop_24dp),
+                    contentDescription = stringResource(R.string.acc_stop),
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer { rotationZ = rotationAnim.value }
+                )
+            } else {
+                val connectDescription = stringResource(R.string.acc_start)
+                Canvas(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .semantics { contentDescription = connectDescription }
+                ) {
+                    val cx = size.width / 2f
+                    val stroke = 2.4f
+                    drawLine(
+                        color = Color.White,
+                        start = Offset(cx, size.height * 0.08f),
+                        end = Offset(cx, size.height * 0.94f),
+                        strokeWidth = stroke,
+                        cap = StrokeCap.Square
+                    )
+                    drawLine(
+                        color = Color.White,
+                        start = Offset(size.width * 0.20f, size.height * 0.40f),
+                        end = Offset(size.width * 0.80f, size.height * 0.40f),
+                        strokeWidth = stroke,
+                        cap = StrokeCap.Square
+                    )
+                    drawLine(
+                        color = Color.White,
+                        start = Offset(size.width * 0.30f, size.height * 0.22f),
+                        end = Offset(cx, size.height * 0.08f),
+                        strokeWidth = stroke,
+                        cap = StrokeCap.Square
+                    )
+                    drawLine(
+                        color = Color.White,
+                        start = Offset(size.width * 0.70f, size.height * 0.22f),
+                        end = Offset(cx, size.height * 0.08f),
+                        strokeWidth = stroke,
+                        cap = StrokeCap.Square
+                    )
+                }
+            }
         }
     }
 }

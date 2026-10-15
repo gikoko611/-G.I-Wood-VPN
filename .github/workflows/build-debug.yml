@@ -1,0 +1,90 @@
+name: G.I Wood VPN - Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          log-accepted-android-sdk-licenses: false
+          cmdline-tools-version: '14742923'
+          packages: 'platforms;android-37.0 build-tools;37.0.0 platform-tools'
+
+      - name: Install NDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            --channel=0 \
+            --install "ndk;30.0.16248370"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/30.0.16248370" >> "$GITHUB_ENV"
+
+          sed -i '10i\
+          \
+              ndkVersion = "30.0.16248370"' \
+            "$GITHUB_WORKSPACE/V2rayNG/app/build.gradle.kts"
+
+      - name: Build native tunnel library
+        run: bash compile-hevtun.sh
+
+      - name: Copy native libraries
+        run: cp -r "$GITHUB_WORKSPACE/libs" "$GITHUB_WORKSPACE/V2rayNG/app"
+
+      - name: Find AndroidLibXrayLite version
+        working-directory: AndroidLibXrayLite
+        run: |
+          CURRENT_TAG=$(git describe --tags --abbrev=0)
+          echo "CURRENT_TAG=$CURRENT_TAG" >> "$GITHUB_ENV"
+          echo "Using AndroidLibXrayLite tag: $CURRENT_TAG"
+
+      - name: Download libv2ray
+        uses: robinraju/release-downloader@v1.13
+        with:
+          repository: '2dust/AndroidLibXrayLite'
+          tag: ${{ env.CURRENT_TAG }}
+          fileName: 'libv2ray.aar'
+          out-file-path: V2rayNG/app/libs/
+
+      - name: Setup Java
+        uses: actions/setup-java@v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build F-Droid Debug APK
+        working-directory: V2rayNG
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          chmod 755 gradlew
+          ./gradlew assembleFdroidDebug
+
+      - name: Upload armeabi-v7a APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: GI-Wood-VPN-armeabi-v7a-debug
+          path: V2rayNG/app/build/outputs/apk/fdroid/debug/*armeabi-v7a*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload universal APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: GI-Wood-VPN-universal-debug
+          path: V2rayNG/app/build/outputs/apk/fdroid/debug/*universal*.apk
+          if-no-files-found: warn
+          retention-days: 7

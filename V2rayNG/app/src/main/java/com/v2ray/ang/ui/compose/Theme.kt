@@ -102,14 +102,14 @@ private val DarkColor = darkColorScheme(
 )
 
 // Semantic Colors
-val colorPing = Color(0xFF009966) // Green
-val colorPingRed = Color(0xFFFF0099) // Pink Red
-val colorConfigType = Color(0xFFf97910) // Orange
-val colorFabActive = Color(0xFFf97910) // Orange
-val colorFabInactiveLight = Color(0xFF9C9C9C) // Gray
-val colorFabInactiveDark = Color(0xFF646464) // Dark Gray
+val colorPing = Color(0xFF8CCF9B) // Gothic sage green
+val colorPingRed = Color(0xFFB23A48) // Pink Red
+val colorConfigType = Color(0xFF9B7EDE) // Orange
+val colorFabActive = Color(0xFF6D3B8C) // Orange
+val colorFabInactiveLight = Color(0xFF51465E) // Gray
+val colorFabInactiveDark = Color(0xFF292331) // Dark Gray
 val dividerColorLight = Color(0xFFE0E0E0) // Light Gray
-val dividerColorDark = Color(0xFF424242) // Dark Gray
+val dividerColorDark = Color(0xFF40334D) // Dark Gray
 
 // Toast Colors 85%
 val toastNormalBgLight = Color(0xD9353A3E) // Dark Gray
